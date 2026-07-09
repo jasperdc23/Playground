@@ -1,7 +1,8 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
-import { useState } from "react";
+import { useSignIn } from "@clerk/nextjs/legacy";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 type Mode = "sign-in" | "sign-up";
@@ -14,8 +15,16 @@ interface AuthLayoutProps {
 
 function GoogleButton() {
   const { signIn, isLoaded } = useSignIn();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Already signed in — bounce to dashboard
+    if (isLoaded && !signIn) {
+      router.push("/dashboard");
+    }
+  }, [isLoaded, signIn, router]);
 
   async function handleGoogle() {
     if (!isLoaded || !signIn) return;
